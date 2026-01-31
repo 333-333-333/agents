@@ -7,6 +7,7 @@ license: Apache-2.0
 metadata:
   author: 333-333-333
   version: "1.0"
+  type: meta
   scope: [root]
   auto_invoke: "Creating new skills"
 allowed-tools: Read, Edit, Write, Glob, Grep, Bash, WebFetch, WebSearch, Task
@@ -53,6 +54,7 @@ license: Apache-2.0
 metadata:
   author: 333-333-333
   version: "1.0"
+  type: project
 ---
 
 ## When to Use
@@ -125,6 +127,7 @@ Generic skill needs Prowler info?  → Add references/ pointing to Prowler docs
 | `license` | Yes | Always `Apache-2.0` for Prowler |
 | `metadata.author` | Yes | `prowler-cloud` |
 | `metadata.version` | Yes | Semantic version as string |
+| `metadata.type` | Yes | Skill classification: `generic`, `project`, or `meta` |
 
 ---
 

@@ -7,6 +7,7 @@ license: Apache-2.0
 metadata:
   author: 333-333-333
   version: "1.0"
+  type: project
   scope: [root]
   auto_invoke:
     - "Setting up Expo multi-environment configuration"
