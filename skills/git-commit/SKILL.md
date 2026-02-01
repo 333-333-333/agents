@@ -6,7 +6,7 @@ description: >
 license: Apache-2.0
 metadata:
   author: template
-  version: "1.0"
+  version: "1.1"
   type: generic
   scope: [root]
   auto_invoke:
@@ -151,6 +151,77 @@ git commit
 # Commit with multi-line message
 git commit -m "feat: add user profile page" -m "Includes avatar upload and bio editing"
 ```
+
+---
+
+## Atomic Commits — Granularity Rules
+
+Each commit MUST represent **one logical change**. When the user asks to commit, analyze `git diff` and split into multiple commits if the changes span different concerns.
+
+### How to Decide
+
+Ask: "If I needed to revert this, would I want to revert ALL of these changes together?" If the answer is no, split them.
+
+| Signal | Action |
+|--------|--------|
+| Changes touch different domains/features | Split by domain |
+| Mix of infra + feature code | Separate commits |
+| New dependency + feature using it | Can be one commit (dependency serves the feature) |
+| Tests + implementation they test | Same commit (they're one logical unit) |
+| Formatting/linting + feature changes | Separate commits |
+| Migration + repository + domain changes | Split if they're independently meaningful |
+
+### Commit Order
+
+When splitting, commits MUST be ordered so the repo **compiles and passes tests at every point**:
+
+1. Infrastructure/config changes first (dependencies, migrations, configs)
+2. Domain/core logic second
+3. Application/service layer third
+4. Transport/handler layer last
+5. Documentation/chore changes independently
+
+### Example — What NOT to Do
+
+```bash
+# BAD: One giant commit mixing everything
+git add -A
+git commit -m "feat(auth): add multi-role support, postgres, gateway proxy, docker-compose"
+```
+
+### Example — Correct Granularity
+
+```bash
+# 1. Domain change
+git add api/auth/internal/auth/domain/
+git commit -m "feat(auth): refactor user entity from single role to multi-role
+
+- Change Role field to []Role with HasRole/AddRole/RemoveRole
+- Add NewRoles validator with dedup and ErrNoRoles
+- Update domain tests for multi-role scenarios"
+
+# 2. Infrastructure adapters
+git add api/auth/internal/auth/infrastructure/ api/auth/migrations/ api/auth/go.*
+git commit -m "feat(auth): add PostgreSQL repository with pgx and sqlc
+
+- Add user_roles migration and sqlc-generated queries
+- Implement PostgresUserRepository and PostgresTokenBlacklist
+- Add DB_PROVIDER switch in main.go (memory/postgres)"
+
+# 3. Independent service change
+git add api/gateway/
+git commit -m "feat(gateway): add reverse proxy forwarding to auth service"
+
+# 4. DevOps/tooling
+git add docker-compose.yml Makefile skills/
+git commit -m "chore: add docker-compose and local dev workflow"
+```
+
+### When a Single Commit Is Fine
+
+- All changes serve ONE purpose (e.g., a bug fix touching 5 files)
+- A small feature fully contained in one layer
+- Pure refactoring with no behavior change
 
 ---
 
