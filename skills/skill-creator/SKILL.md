@@ -6,7 +6,7 @@ description: >
 license: Apache-2.0
 metadata:
   author: 333-333-333
-  version: "1.0"
+  version: "1.1"
   type: meta
   scope: [root]
   auto_invoke: "Creating new skills"
@@ -50,11 +50,14 @@ name: {skill-name}
 description: >
   {One-line description of what this skill does}.
   Trigger: {When the AI should load this skill}.
-license: Apache-2.0
 metadata:
   author: 333-333-333
   version: "1.0"
-  type: project
+  type: {generic|project|meta}
+  scope: [{root|directory-name}]
+  auto_invoke:
+    - "{Action that triggers this skill}"
+    - "{Another action that triggers this skill}"
 ---
 
 ## When to Use
@@ -87,10 +90,25 @@ metadata:
 
 | Type | Pattern | Examples |
 |------|---------|----------|
-| Generic skill | `{technology}` | `pytest`, `playwright`, `typescript` |
-| Prowler-specific | `prowler-{component}` | `prowler-api`, `prowler-ui`, `prowler-sdk-check` |
-| Testing skill | `prowler-test-{component}` | `prowler-test-sdk`, `prowler-test-api` |
-| Workflow skill | `{action}-{target}` | `skill-creator`, `jira-task` |
+| Generic skill | `{technology}` or `{tech}-{concern}` | `typescript`, `go-tdd`, `go-gin-handlers` |
+| Project-specific | `{project}-{component}` | `bastet-booking`, `bastet-auth` |
+| Workflow skill | `{action}-{target}` | `skill-creator`, `skill-sync` |
+| Meta skill | `skill-{action}` | `skill-creator`, `skill-sync` |
+
+---
+
+## Decision: Skill Type
+
+```
+Patterns apply to ANY project?         → type: generic
+Patterns are specific to THIS repo?    → type: project
+Skill manages the skills system?       → type: meta
+```
+
+**Important**: The `type` field determines where the skill appears in AGENTS.md:
+- `generic` → **Generic Skills** table (reusable across projects)
+- `project` → **Project Skills** table (repo-specific)
+- `meta` → **Meta-Skills** section (manually managed, not synced)
 
 ---
 
@@ -108,26 +126,40 @@ Link to external guides?    → references/ (with local path)
 
 ---
 
-## Decision: Prowler-Specific vs Generic
-
-```
-Patterns apply to ANY project?     → Generic skill (e.g., pytest, typescript)
-Patterns are Prowler-specific?     → prowler-{name} skill
-Generic skill needs Prowler info?  → Add references/ pointing to Prowler docs
-```
-
----
-
 ## Frontmatter Fields
 
 | Field | Required | Description |
 |-------|----------|-------------|
 | `name` | Yes | Skill identifier (lowercase, hyphens) |
 | `description` | Yes | What + Trigger in one block |
-| `license` | Yes | Always `Apache-2.0` for Prowler |
-| `metadata.author` | Yes | `prowler-cloud` |
+| `metadata.author` | Yes | `333-333-333` |
 | `metadata.version` | Yes | Semantic version as string |
-| `metadata.type` | Yes | Skill classification: `generic`, `project`, or `meta` |
+| `metadata.type` | Yes | `generic`, `project`, or `meta` |
+| `metadata.scope` | Yes | Array of scopes: `[root]`, `[api]`, `[root, api]`, etc. |
+| `metadata.auto_invoke` | Yes | String or list of actions that trigger this skill |
+
+### Scope Values
+
+| Scope | Updates |
+|-------|---------|
+| `root` | `./AGENTS.md` (repository root) |
+| `{directory}` | `./{directory}/AGENTS.md` |
+
+A skill can target multiple scopes: `scope: [root, api, web]`
+
+### Auto-invoke Format
+
+Single action:
+```yaml
+auto_invoke: "Creating new components"
+```
+
+Multiple actions:
+```yaml
+auto_invoke:
+  - "Creating new components"
+  - "Refactoring component structure"
+```
 
 ---
 
@@ -150,11 +182,13 @@ Generic skill needs Prowler info?  → Add references/ pointing to Prowler docs
 
 ## Registering the Skill
 
-After creating the skill, add it to `AGENTS.md`:
+After creating the skill, run the sync script to register it in AGENTS.md:
 
-```markdown
-| `{skill-name}` | {Description} | [SKILL.md](skills/{skill-name}/SKILL.md) |
+```bash
+./skills/skill-sync/assets/sync.sh
 ```
+
+This automatically updates the skill tables and auto-invoke sections based on `metadata.type`, `metadata.scope`, and `metadata.auto_invoke`.
 
 ---
 
@@ -163,11 +197,15 @@ After creating the skill, add it to `AGENTS.md`:
 - [ ] Skill doesn't already exist (check `skills/`)
 - [ ] Pattern is reusable (not one-off)
 - [ ] Name follows conventions
-- [ ] Frontmatter is complete (description includes trigger keywords)
+- [ ] Frontmatter is complete:
+  - [ ] `name` and `description` (with Trigger)
+  - [ ] `metadata.type` (generic/project/meta)
+  - [ ] `metadata.scope` (where to register)
+  - [ ] `metadata.auto_invoke` (when to trigger)
 - [ ] Critical patterns are clear
 - [ ] Code examples are minimal
 - [ ] Commands section exists
-- [ ] Added to AGENTS.md
+- [ ] Ran `./skills/skill-sync/assets/sync.sh`
 
 ## Resources
 
