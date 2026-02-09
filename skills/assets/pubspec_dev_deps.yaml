@@ -1,6 +1,0 @@
-# pubspec.yaml
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  mocktail: ^1.0.4          # For mocking in widget tests
-  # golden_toolkit: ^0.15.0  # Optional: enhanced golden test utilities

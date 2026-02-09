@@ -1,7 +1,0 @@
-linter:
-  rules:
-    # Documentation
-    - public_member_api_docs       # Require docs on public members
-    - slash_for_doc_comments       # Enforce /// over /** */
-    - package_api_docs             # Require docs on public API
-    - comment_references           # Validate [references] in docs

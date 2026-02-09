@@ -1,39 +1,22 @@
-// internal/shared/observability/logger.go
-package observability
+func setupLogger(env string) *slog.Logger {
+    var handler slog.Handler
 
-import (
-	"context"
-	"log/slog"
-	"os"
-)
+    switch env {
+    case "production", "staging":
+        handler = slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+            Level: slog.LevelInfo,
+        })
+    case "development":
+        handler = slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+            Level:     slog.LevelDebug,
+            AddSource: true,
+        })
+    default: // local
+        handler = slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+            Level:     slog.LevelDebug,
+            AddSource: true,
+        })
+    }
 
-func SetupLogger(env string) {
-	var handler slog.Handler
-
-	opts := &slog.HandlerOptions{
-		AddSource: true,
-	}
-
-	if env == "production" {
-		opts.Level = slog.LevelInfo
-		handler = slog.NewJSONHandler(os.Stdout, opts)
-	} else {
-		opts.Level = slog.LevelDebug
-		handler = slog.NewTextHandler(os.Stdout, opts)
-	}
-
-	slog.SetDefault(slog.New(handler))
-}
-
-// ContextLogger returns a logger enriched with trace context.
-func ContextLogger(ctx context.Context) *slog.Logger {
-	logger := slog.Default()
-
-	// Add trace ID if present
-	traceID := TraceIDFromContext(ctx)
-	if traceID != "" {
-		logger = logger.With("trace_id", traceID)
-	}
-
-	return logger
+    return slog.New(handler)
 }
