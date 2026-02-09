@@ -1,0 +1,49 @@
+meta {
+  name: Send Invalid Channel
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/v1/notifications/send
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "channel": "telegram",
+    "recipient": "user@example.com",
+    "content": "This should fail"
+  }
+}
+
+tests {
+  test("status is 400", function() {
+    expect(res.getStatus()).to.equal(400);
+  });
+
+  test("response has error envelope", function() {
+    const body = res.getBody();
+    expect(body.error).to.not.be.undefined;
+  });
+
+  test("error code is VALIDATION_ERROR", function() {
+    const error = res.getBody().error;
+    expect(error.code).to.equal('VALIDATION_ERROR');
+  });
+
+  test("error message mentions channel", function() {
+    const error = res.getBody().error;
+    expect(error.message).to.include('channel');
+  });
+
+  test("no data in error response", function() {
+    const body = res.getBody();
+    expect(body.data).to.be.undefined;
+  });
+}

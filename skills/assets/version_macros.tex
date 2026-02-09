@@ -1,0 +1,24 @@
+% ============================================
+% Version control table
+% ============================================
+\newcommand{\versiontable}[1]{%
+  \begin{center}
+  \small
+  \begin{tabularx}{\textwidth}{|l|l|l|X|}
+    \hline
+    \rowcolor{bgMantle}
+    \textbf{\textcolor{primary}{Versión}} &
+    \textbf{\textcolor{primary}{Fecha}} &
+    \textbf{\textcolor{primary}{Autor}} &
+    \textbf{\textcolor{primary}{Cambios}} \\
+    \hline
+    #1
+  \end{tabularx}
+  \end{center}
+  \vspace{1em}
+}
+
+% Row helper — use inside \versiontable
+\newcommand{\versionrow}[4]{%
+  #1 & #2 & #3 & #4 \\ \hline
+}

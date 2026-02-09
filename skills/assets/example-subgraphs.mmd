@@ -1,0 +1,19 @@
+%% Ejemplo de subgraphs para bounded contexts
+%% Dominio: architecture | Tipo: flowchart
+flowchart TD
+    subgraph mobile["📱 Mobile App"]
+        userRequest[Solicitar servicio]
+    end
+
+    subgraph api["⚙️ API"]
+        validateReq[Validar solicitud]
+        createBooking[Crear reserva]
+    end
+
+    subgraph external["🌐 External"]
+        flowCl[Flow.cl]
+    end
+
+    userRequest --> validateReq
+    validateReq --> createBooking
+    createBooking ==> flowCl

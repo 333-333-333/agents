@@ -1,0 +1,102 @@
+# Affected detection job template for Nx monorepo CI.
+#
+# This job is always the FIRST job in the pipeline. Every other job
+# depends on it via `needs: affected`.
+#
+# It produces two categories of outputs:
+#   1. Project-level booleans (e.g., latex=true, api-auth=false)
+#   2. File-level JSON arrays for matrix strategies (e.g., changed-tex, changed-mmd)
+#
+# To add a new Nx project:
+#   1. Add the project name to the `for` loop in "Check affected projects"
+#   2. Add its output key to the `outputs:` map
+#   3. If it produces renderable artifacts, add file detection in "Detect changed files"
+#
+# The `sed 's/^docs-//'` strips the docs- prefix for cleaner output keys:
+#   docs-latex    → latex
+#   docs-diagrams → diagrams
+#   api-gateway   → api-gateway  (unchanged)
+
+jobs:
+  affected:
+    name: Detect affected projects
+    runs-on: ubuntu-latest
+    outputs:
+      # --- Project-level outputs (boolean) ---
+      latex: ${{ steps.check.outputs.latex }}
+      diagrams: ${{ steps.check.outputs.diagrams }}
+      api-gateway: ${{ steps.check.outputs.api-gateway }}
+      api-auth: ${{ steps.check.outputs.api-auth }}
+      # --- File-level outputs (JSON arrays for matrix) ---
+      changed-tex: ${{ steps.changed-files.outputs.tex }}
+      changed-mmd: ${{ steps.changed-files.outputs.mmd }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Full history needed for Nx affected detection
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm install
+      - uses: nrwl/nx-set-shas@v4 # Sets NX_BASE and NX_HEAD env vars
+
+      # Step 1: Project-level detection via Nx
+      - name: Check affected projects
+        id: check
+        run: |
+          AFFECTED=$(npx nx show projects --affected --base=$NX_BASE --head=$NX_HEAD 2>/dev/null || echo "")
+          echo "Affected projects: $AFFECTED"
+
+          for project in docs-latex docs-diagrams api-gateway api-auth; do
+            key=$(echo "$project" | sed 's/^docs-//')
+            if echo "$AFFECTED" | grep -q "$project"; then
+              echo "$key=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "$key=false" >> "$GITHUB_OUTPUT"
+            fi
+          done
+
+      # Step 2: File-level detection via git diff (for renderable artifacts)
+      - name: Detect changed files
+        id: changed-files
+        run: |
+          CHANGED=$(git diff --name-only $NX_BASE $NX_HEAD 2>/dev/null || echo "")
+
+          # --- LaTeX: resolve changed .tex to root documents ---
+          TEX_FILES=$(echo "$CHANGED" | grep '^docs/latex/.*\.tex$' || echo "")
+
+          ROOT_DOCS=""
+          for f in $TEX_FILES; do
+            if [ ! -f "$f" ]; then continue; fi
+            if grep -q '\\documentclass' "$f"; then
+              ROOT_DOCS="$ROOT_DOCS $f"
+            else
+              # Module file: walk up to find the root document
+              DOMAIN_DIR=$(dirname "$f")
+              while [ "$DOMAIN_DIR" != "docs/latex" ] && [ "$DOMAIN_DIR" != "." ]; do
+                PARENT_DIR=$(dirname "$DOMAIN_DIR")
+                ROOTS=$(grep -rl '\\documentclass' "$PARENT_DIR" --include='*.tex' 2>/dev/null | head -20 || echo "")
+                if [ -n "$ROOTS" ]; then
+                  ROOT_DOCS="$ROOT_DOCS $ROOTS"
+                  break
+                fi
+                DOMAIN_DIR="$PARENT_DIR"
+              done
+            fi
+          done
+
+          # --- Mermaid: just the changed .mmd files ---
+          MMD_FILES=$(echo "$CHANGED" | grep '^docs/diagrams/.*\.mmd$' || echo "")
+
+          # --- Format as JSON arrays (deduplicated) ---
+          TEX_JSON=$(echo "$ROOT_DOCS" | tr ' ' '\n' | sort -u | grep -v '^$' \
+            | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          MMD_JSON=$(echo "$MMD_FILES" | tr ' ' '\n' | sort -u | grep -v '^$' \
+            | jq -R -s -c 'split("\n") | map(select(length > 0))')
+
+          echo "tex=$TEX_JSON" >> "$GITHUB_OUTPUT"
+          echo "mmd=$MMD_JSON" >> "$GITHUB_OUTPUT"
+          echo "Root LaTeX docs to compile: $TEX_JSON"
+          echo "Mermaid files to render: $MMD_JSON"

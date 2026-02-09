@@ -1,0 +1,11 @@
+% ============================================
+% CLP Currency Macros
+% ============================================
+
+% Format a CLP amount
+\newcommand{\clp}[1]{\$#1~CLP}
+
+% Convert USD to CLP with exchange rate
+% Usage: \usdtoclp{49}{45.000}{920}
+% Output: USD $49 (~$45.000 CLP al tipo de cambio de $920 CLP/USD)
+\newcommand{\usdtoclp}[3]{USD~\$#1 (~\clp{#2} al tipo de cambio de \$#3~CLP/USD)}

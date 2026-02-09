@@ -1,0 +1,309 @@
+\documentclass[11pt, a4paper]{article}
+
+% ============================================
+% Packages
+% ============================================
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{parskip}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{multirow}
+\usepackage{colortbl}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usepackage{tcolorbox}
+
+% ============================================
+% Color definitions — Catppuccin Latte (print)
+% Ref: skills/corporate-colors/SKILL.md
+% ============================================
+
+% -- Primary --
+\definecolor{primary}{HTML}{1e66f5}
+\definecolor{primaryHover}{HTML}{04a5e5}
+\definecolor{primaryActive}{HTML}{7287fd}
+
+% -- Secondary --
+\definecolor{secondary}{HTML}{8839ef}
+\definecolor{secondaryHover}{HTML}{ea76cb}
+
+% -- Accent --
+\definecolor{success}{HTML}{40a02b}
+\definecolor{warning}{HTML}{df8e1d}
+\definecolor{error}{HTML}{d20f39}
+\definecolor{info}{HTML}{209fb5}
+
+% -- Surface --
+\definecolor{bgBase}{HTML}{eff1f5}
+\definecolor{bgMantle}{HTML}{e6e9ef}
+\definecolor{bgCrust}{HTML}{dce0e8}
+
+% -- Text --
+\definecolor{textPrimary}{HTML}{4c4f69}
+\definecolor{textSecondary}{HTML}{5c5f77}
+\definecolor{textTertiary}{HTML}{6c6f85}
+
+% -- Border --
+\definecolor{border}{HTML}{acb0be}
+\definecolor{borderSubtle}{HTML}{bcc0cc}
+\definecolor{borderEmphasis}{HTML}{8839ef}
+
+% ============================================
+% Page layout
+% ============================================
+\geometry{margin=2.5cm, headheight=22pt, headsep=12pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.8em}
+
+% ============================================
+% Global text color
+% ============================================
+\color{textPrimary}
+
+% ============================================
+% Header / Footer
+% ============================================
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textcolor{textSecondary}{TÍTULO DEL DOCUMENTO}}
+\fancyhead[R]{\small\textcolor{textSecondary}{\today}}
+\fancyfoot[C]{\small\textcolor{textTertiary}{\thepage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{%
+  \color{border}\leaders\hrule height \headrulewidth\hfill}}
+\renewcommand{\footrulewidth}{0pt}
+
+% ============================================
+% Section styling
+% ============================================
+\usepackage{titlesec}
+\titleformat{\section}
+  {\Large\bfseries\color{primary}}
+  {\thesection.}{0.5em}{}
+\titleformat{\subsection}
+  {\large\bfseries\color{primary!80!textPrimary}}
+  {\thesubsection.}{0.5em}{}
+\titleformat{\subsubsection}
+  {\normalsize\bfseries\color{primary!60!textPrimary}}
+  {\thesubsubsection.}{0.5em}{}
+
+% ============================================
+% Hyperlinks
+% ============================================
+\hypersetup{
+  colorlinks=true,
+  linkcolor=primary,
+  urlcolor=primary,
+  citecolor=secondary,
+  pdftitle={Título del Documento},
+  pdfauthor={Autor},
+}
+
+% ============================================
+% Table styling
+% ============================================
+\arrayrulecolor{border}
+\captionsetup{
+  font={small, color=textSecondary},
+  labelfont={bf, color=primary},
+}
+
+% ============================================
+% Custom macros
+% ============================================
+
+% Currency
+\newcommand{\clp}[1]{\$#1~CLP}
+\newcommand{\usdtoclp}[3]{USD~\$#1 (~\clp{#2} al tipo de cambio de \$#3~CLP/USD)}
+
+% Callout boxes
+\newtcolorbox{infobox}{
+  colback=info!5,
+  colframe=info,
+  fonttitle=\bfseries\color{info},
+  title=Información,
+  boxrule=0.5pt,
+  arc=4pt,
+}
+
+\newtcolorbox{warningbox}{
+  colback=warning!5,
+  colframe=warning,
+  fonttitle=\bfseries\color{warning},
+  title=Advertencia,
+  boxrule=0.5pt,
+  arc=4pt,
+}
+
+\newtcolorbox{errorbox}{
+  colback=error!5,
+  colframe=error,
+  fonttitle=\bfseries\color{error},
+  title=Crítico,
+  boxrule=0.5pt,
+  arc=4pt,
+}
+
+\newtcolorbox{successbox}{
+  colback=success!5,
+  colframe=success,
+  fonttitle=\bfseries\color{success},
+  title=Logrado,
+  boxrule=0.5pt,
+  arc=4pt,
+}
+
+% ============================================
+% Version control table
+% ============================================
+\newcommand{\versiontable}[1]{%
+  \begin{center}
+  \small
+  \begin{tabularx}{\textwidth}{|l|l|l|X|}
+    \hline
+    \rowcolor{bgMantle}
+    \textbf{\textcolor{primary}{Versión}} &
+    \textbf{\textcolor{primary}{Fecha}} &
+    \textbf{\textcolor{primary}{Autor}} &
+    \textbf{\textcolor{primary}{Cambios}} \\
+    \hline
+    #1
+  \end{tabularx}
+  \end{center}
+  \vspace{1em}
+}
+
+\newcommand{\versionrow}[4]{%
+  #1 & #2 & #3 & #4 \\ \hline
+}
+
+% ============================================
+% Document metadata
+% ============================================
+\title{\textcolor{primary}{\textbf{Título del Documento}}}
+\author{\textcolor{textSecondary}{Nombre del Autor}}
+\date{\textcolor{textTertiary}{\today}}
+
+% ============================================
+% Begin document
+% ============================================
+\begin{document}
+
+\maketitle
+\thispagestyle{fancy}
+
+% ============================================
+% Control de versiones
+% ============================================
+\versiontable{
+  \versionrow{1.0}{Enero 2026}{Nombre del Autor}{Versión inicial del documento}
+}
+
+% ============================================
+% Resumen Ejecutivo
+% ============================================
+\section*{Resumen Ejecutivo}
+
+% Propósito y alcance del documento
+Describir brevemente el objetivo del documento, los temas cubiertos
+y las conclusiones o recomendaciones principales.
+
+\tableofcontents
+\newpage
+
+% ============================================
+% 1. Contexto
+% ============================================
+\section{Contexto}
+
+% Antecedentes y motivación del proyecto
+Describir el contexto que origina este documento, incluyendo
+antecedentes relevantes y la necesidad que se busca resolver.
+
+% Alcance y limitaciones del análisis
+Definir qué cubre y qué no cubre este documento.
+
+% ============================================
+% 2. Análisis
+% ============================================
+\section{Análisis}
+
+% Descripción de la metodología utilizada
+Explicar el enfoque metodológico...
+
+\subsection{Hallazgos Principales}
+
+% Resumen de los hallazgos más relevantes
+Presentar los resultados clave del análisis.
+
+% Evidencia cuantitativa que respalda los hallazgos
+Incluir datos, tablas o gráficos.
+
+\begin{table}[h]
+\centering
+\caption{Ejemplo de tabla con costos estimados}
+\begin{tabularx}{\textwidth}{Xlrr}
+\toprule
+\rowcolor{bgMantle}
+\textbf{Ítem} & \textbf{Unidad} & \textbf{Cantidad} & \textbf{Costo (CLP)} \\
+\midrule
+Desarrollo       & Horas & 160 & \$4.800.000 \\
+Infraestructura  & Mes   & 12  & \$5.400.000 \\
+Licencias        & Año   & 1   & \$250.000 \\
+\midrule
+\textbf{Total}   &       &     & \textbf{\$10.450.000} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% ============================================
+% 3. Impacto Económico
+% ============================================
+\section{Impacto Económico}
+
+% Inversión total requerida en CLP
+Detallar la inversión total...
+
+% Retorno esperado y plazo de recuperación
+Describir el ROI esperado...
+
+\begin{infobox}
+% Nota sobre vigencia de datos económicos
+Valores económicos calculados con datos de enero 2026.
+Verificar vigencia antes de utilizar para decisiones financieras.
+\end{infobox}
+
+% ============================================
+% 4. Conclusiones
+% ============================================
+\section{Conclusiones}
+
+% Síntesis de hallazgos y viabilidad del proyecto
+Resumir las conclusiones principales...
+
+% Recomendaciones concretas y próximos pasos
+Listar las acciones recomendadas.
+
+\begin{enumerate}[leftmargin=2em]
+  \item Primera recomendación.
+  \item Segunda recomendación.
+  \item Tercera recomendación.
+\end{enumerate}
+
+% ============================================
+% Anexos (opcional)
+% ============================================
+% \newpage
+% \appendix
+% \section{Anexo A: Datos de Soporte}
+% Incluir tablas extendidas, código fuente, o referencias adicionales.
+
+\end{document}

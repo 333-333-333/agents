@@ -1,0 +1,34 @@
+# =============================================================================
+# Terraform .gitignore patterns
+# =============================================================================
+# Add these to your project's .gitignore (root or infra-level).
+# These protect secrets, state, and provider binaries from being committed.
+
+# --- Provider plugins and modules cache ---
+.terraform/
+
+# --- State files (contain ALL resource attributes, including secrets) ---
+*.tfstate
+*.tfstate.backup
+*.tfstate.*.backup
+
+# --- Variable files (contain actual secret values) ---
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+
+# --- Lock file (optional — commit if you want reproducible builds) ---
+# .terraform.lock.hcl
+
+# --- Crash logs ---
+crash.log
+crash.*.log
+
+# --- Plan files (may contain secrets) ---
+*.tfplan
+
+# --- Override files (local developer overrides) ---
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json

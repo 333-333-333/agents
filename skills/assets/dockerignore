@@ -1,0 +1,7 @@
+# api/booking/.dockerignore
+.git
+.env
+*.md
+coverage.out
+coverage.html
+vendor/

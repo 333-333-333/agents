@@ -1,0 +1,10 @@
+%% Flujo de completar perfil y reservar servicio
+%% Dominio: booking | Tipo: flowchart
+flowchart TD
+    start([Inicio]) --> checkProfile{¿Perfil completo?}
+    checkProfile -->|Sí| showServices[Mostrar servicios]
+    checkProfile -->|No| editProfile[Completar perfil]
+    editProfile --> checkProfile
+    showServices --> selectService[Seleccionar servicio]
+    selectService --> confirmBooking[Confirmar reserva]
+    confirmBooking --> finish([Fin])

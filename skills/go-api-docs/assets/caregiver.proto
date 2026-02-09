@@ -1,0 +1,18 @@
+// CaregiverService manages caregiver profiles and availability.
+service CaregiverService {
+  // GetCaregiver retrieves a caregiver by their unique ID.
+  // Returns NOT_FOUND if the caregiver does not exist.
+  rpc GetCaregiver(GetCaregiverRequest) returns (GetCaregiverResponse);
+
+  // ListAvailable returns caregivers available for a given service type,
+  // date, and location radius.
+  rpc ListAvailable(ListAvailableRequest) returns (ListAvailableResponse);
+}
+
+// Caregiver represents a verified pet care provider.
+message Caregiver {
+  string id = 1;           // Unique identifier (UUID)
+  string name = 2;         // Full display name
+  bool verified = 3;       // Whether the caregiver has passed verification
+  double rating = 4;       // Average rating (0.0 - 5.0)
+}

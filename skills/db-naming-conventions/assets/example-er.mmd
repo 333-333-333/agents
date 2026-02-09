@@ -1,0 +1,83 @@
+%% Modelo de datos principal de Bastet (convenciones de naming)
+%% Dominio: architecture | Tipo: ER
+erDiagram
+    users ||--o{ bookings : "creates"
+    users ||--o{ pets : "owns"
+    pet_sitters ||--o{ bookings : "accepts"
+    pet_sitters ||--o{ pet_sitter_services : "offers"
+    services ||--o{ pet_sitter_services : "listed in"
+    bookings ||--|{ payments : "has"
+    bookings }o--|| pet_sitter_services : "is for"
+
+    users {
+        uuid id PK
+        string email
+        string first_name
+        string last_name
+        string phone
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    pets {
+        uuid id PK
+        uuid user_id FK
+        string name
+        string species
+        string breed
+        boolean is_neutered
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    pet_sitters {
+        uuid id PK
+        uuid user_id FK
+        string bio
+        boolean is_verified
+        boolean has_certificate
+        integer rating_count
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    services {
+        uuid id PK
+        string name
+        string description
+        timestamp created_at
+    }
+
+    pet_sitter_services {
+        uuid id PK
+        uuid pet_sitter_id FK
+        uuid service_id FK
+        integer price_cents
+        boolean is_available
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    bookings {
+        uuid id PK
+        uuid user_id FK
+        uuid pet_sitter_service_id FK
+        string status
+        timestamp start_at
+        timestamp end_at
+        integer total_cents
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    payments {
+        uuid id PK
+        uuid booking_id FK
+        string status
+        string flow_token
+        integer amount_cents
+        integer fee_cents
+        timestamp paid_at
+        timestamp created_at
+    }
